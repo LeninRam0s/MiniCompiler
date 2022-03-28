@@ -22,6 +22,8 @@ else |
 while {lexeme=yytext(); return Reservadas;}
 
       //TABLA DE SIMBOLOS
+
+"," {return Coma;}
 {espacio} {/*Ignore*/}
 "//".* {/*Ignore*/}
 "=" {return Igual;}
@@ -43,7 +45,6 @@ while {lexeme=yytext(); return Reservadas;}
 "]" {return CorchetesC;}
 ";" {return PuntoComa;}
 ":" {return DosPuntos;}
-"," {return Coma;}
 "." {return Punto;}
 "%" {return Porcentaje;}
 
