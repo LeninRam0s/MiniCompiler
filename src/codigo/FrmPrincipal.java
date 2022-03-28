@@ -35,11 +35,12 @@ public class FrmPrincipal {
                         if (tokens == null){
                             resultado += "Final";
                             txtResultado.setText(resultado);//Pasamos al form la cadena del resultado
+
                             return; //para salir del while infinito
                         }
                         switch (tokens){
                             case ERROR:
-                                resultado+= lexer.yytext() +"\t\t|  ERROR LEXEMA N/D\n";
+                                resultado+= lexer.yytext() +"\t\t|  ERROR TOKEN N/D\n";
                                 break;
                             case Suma:
                             case Resta:
@@ -81,13 +82,11 @@ public class FrmPrincipal {
                     ex.printStackTrace();
                 }
             }
-
         });
-
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("FrmPrincipal");
+        JFrame frame = new JFrame("Analizador Lexico - V0.1");
         frame.setContentPane(new FrmPrincipal().PanelPrincipal);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -102,7 +101,4 @@ public class FrmPrincipal {
         File archivo = new File(ruta);
         JFlex.Main.generate(archivo);
     }
-
-
-
 }

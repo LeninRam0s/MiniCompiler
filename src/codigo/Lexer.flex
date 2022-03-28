@@ -47,9 +47,6 @@ while {lexeme=yytext(); return Reservadas;}
 "." {return Punto;}
 "%" {return Porcentaje;}
 
-
-
-
       //PATRONES
 {L}({L}|{D})* {lexeme=yytext(); return Identificador;}
 ("(-"{D}+")")|{D}+ {lexeme=yytext(); return Numero;}
