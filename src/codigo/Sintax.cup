@@ -1,0 +1,88 @@
+package codigo;
+
+import java_cup.runtime.Symbol;
+import java_cup.sym;
+
+parser code
+{:
+    private Symbol s;
+
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol gets(){
+        return this.s;
+    }
+:};
+
+//Simbolos Terminales
+terminal Entero, Decimal, Texto, Caracter, Logico, Break, Case, Default, Swhitch, If, Imprimir,
+         For, Line, Negacion, Suma, Resta, Multiplicacion, Division, Menor, Mayor, MayorIgual,
+         MenorIgual, Diferente, Y, O, Asignacion, PuntoComa, DosPuntos, Punto, DobleBarra,
+         ParentesisA, ParentesisC, LlavesA, LlavesC, CorchetesA, CorchetesC, Porcentaje,
+         Inicio, Identificador, Numero, NumeroDecimal, Igual, Cadena, ERROR;
+
+non terminal INICIO, SENTENCIA, DECLARACION, DECLARACION_FOR, IF, IF_ELSE,
+    WHILE, DO_WHILE, FOR, SENTENCIA_BOOLEANA, SENTENCIA_FOR;
+
+//REGLAS SINTACTICAS
+start with INICIO;
+
+INICIO ::=
+    Entero Main ParentesisA ParentesisC LlavesA SENTENCIA LlavesC |
+    Main ParentesisA ParentesisC LlavesA SENTENCIA LlavesC
+;
+
+SENTENCIA ::=
+    SENTENCIA DECLARACION |
+    DECLARACION |
+    SENTENCIA IF |
+    IF |
+    SENTENCIA IF_ELSE |
+    IF_ELSE |
+    SENTENCIA WHILE |
+    WHILE |
+    SENTENCIA DO_WHILE
+    DO_WHILE |
+    SENTENCIA FOR |
+    FOR
+;
+DECLARACION ::=
+    T_dato Identificador PuntoComa |
+    T_dato Identificador Op_atribucion Numero PuntoComa |
+    T_dato Identificador Igual Numero PuntoComa |
+    T_dato Identificador Op_incremento PuntoComa |
+    T_dato Op_incremento Identificador PuntoComa |
+    Cadena Identificador Op_atribucion Comillas Comillas PuntoComa |
+    Cadena Identificador Igual Comillas Comillas PuntoComa |
+    Cadena Identificador Op_atribucion Comillas Identificador Comillas PuntoComa |
+    Cadena Identificador Igual Comillas Identificador Comillas PuntoComa
+;
+IF ::= If Parentesis_a SENTENCIA_BOOLEANA Parentesis_c Llave_a SENTENCIA Llave_c
+;
+SENTENCIA_BOOLEANA ::=
+    Op_booleano |
+    Identificador Op_relacional Op_booleano |
+    Identificador Op_relacional Numero |
+    Identificador Op_relacional Identificador |
+    Identificador Op_relacional Comillas Comillas |
+    Identificador Op_relacional Comillas Identificador Comillas
+;
+IF_ELSE ::= If Parentesis_a SENTENCIA_BOOLEANA Parentesis_c Llave_a SENTENCIA Llave_c Else Llave_a SENTENCIA Llave_c
+;
+WHILE ::= While Parentesis_a SENTENCIA_BOOLEANA Parentesis_c Llave_a SENTENCIA Llave_c
+;
+DO_WHILE ::= Do Llave_a SENTENCIA Llave_c While Parentesis_a SENTENCIA_BOOLEANA Parentesis_c PuntoComa
+;
+FOR ::= For Parentesis_a SENTENCIA_FOR Parentesis_c Llave_a SENTENCIA Llave_c
+;
+SENTENCIA_FOR ::=
+    T_dato Identificador Igual Numero PuntoComa SENTENCIA_BOOLEANA PuntoComa DECLARACION_FOR |
+    Identificador Igual Numero PuntoComa SENTENCIA_BOOLEANA PuntoComa DECLARACION_FOR
+;
+DECLARACION_FOR ::=
+    Identificador Op_atribucion Numero |
+    Identificador Op_incremento |
+    Op_incremento Identificador
+;

@@ -51,7 +51,7 @@
           <foreground color="-14697802"/>
           <horizontalAlignment value="2"/>
           <horizontalTextPosition value="0"/>
-          <text value="Analizador Lexico V0.1"/>
+          <text value="MiniCompiler V0.1"/>
         </properties>
       </component>
       <hspacer id="bfbdc">
