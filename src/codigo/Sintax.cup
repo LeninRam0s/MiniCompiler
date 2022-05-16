@@ -1,7 +1,6 @@
 package codigo;
 
 import java_cup.runtime.Symbol;
-import java_cup.sym;
 
 parser code
 {:
@@ -11,15 +10,15 @@ parser code
         this.s = s;
     }
 
-    public Symbol gets(){
+    public Symbol getS(){
         return this.s;
     }
 :};
 
 //Simbolos Terminales
-terminal Entero, Decimal, Texto, Caracter, Logico, Break, Case, Default, Swhitch, If, Imprimir,
-         For, Line, Negacion, Suma, Resta, Multiplicacion, Division, Menor, Mayor, MayorIgual,
-         MenorIgual, Diferente, Y, O, Asignacion, PuntoComa, DosPuntos, Punto, DobleBarra,
+terminal Entero, Decimal, Texto, Caracter, Logico, Break, Case, Default, Switch, If, Imprimir,
+         For, Negacion, Suma, Resta, Multiplicacion, Division, Menor, Mayor, MayorIgual,
+         MenorIgual, Diferente, Igual, And, Or, Asignacion, PuntoComa, DosPuntos, Punto, DobleBarra,
          ParentesisA, ParentesisC, LlavesA, LlavesC, CorchetesA, CorchetesC, Porcentaje,
          Inicio, Identificador, Numero, NumeroDecimal, Igual, Cadena, ERROR;
 
@@ -30,7 +29,7 @@ non terminal INICIO, SENTENCIA, DECLARACION, DECLARACION_FOR, IF, IF_ELSE,
 start with INICIO;
 
 INICIO ::=
-    Entero Main ParentesisA ParentesisC LlavesA SENTENCIA LlavesC |
+    Main ParentesisA ParentesisC LlavesA SENTENCIA LlavesC |
     Main ParentesisA ParentesisC LlavesA SENTENCIA LlavesC
 ;
 
@@ -69,13 +68,13 @@ SENTENCIA_BOOLEANA ::=
     Identificador Op_relacional Comillas Comillas |
     Identificador Op_relacional Comillas Identificador Comillas
 ;
-IF_ELSE ::= If Parentesis_a SENTENCIA_BOOLEANA Parentesis_c Llave_a SENTENCIA Llave_c Else Llave_a SENTENCIA Llave_c
+IF_ELSE ::= If ParentesisA SENTENCIA_BOOLEANA ParentesisC LlavesA SENTENCIA LlavesC Else LlavesA SENTENCIA LlavesC
 ;
-WHILE ::= While Parentesis_a SENTENCIA_BOOLEANA Parentesis_c Llave_a SENTENCIA Llave_c
+WHILE ::= While ParentesisA SENTENCIA_BOOLEANA ParentesisC LlavesA SENTENCIA LlavesC
 ;
-DO_WHILE ::= Do Llave_a SENTENCIA Llave_c While Parentesis_a SENTENCIA_BOOLEANA Parentesis_c PuntoComa
+DO_WHILE ::= Do LlavesA SENTENCIA LlavesC While ParentesisA SENTENCIA_BOOLEANA ParentesisC PuntoComa
 ;
-FOR ::= For Parentesis_a SENTENCIA_FOR Parentesis_c Llave_a SENTENCIA Llave_c
+FOR ::= For ParentesisA SENTENCIA_FOR ParentesisC LlavesA SENTENCIA LlavesC
 ;
 SENTENCIA_FOR ::=
     T_dato Identificador Igual Numero PuntoComa SENTENCIA_BOOLEANA PuntoComa DECLARACION_FOR |

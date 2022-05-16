@@ -1,51 +1,53 @@
 package codigo;
 
-import javax.swing.*;
+import java_cup.runtime.Symbol;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.*;
 
 public class FrmPrincipal {
 
-    private JTextField txtEntrada;
     private JButton btnAnalizar;
     private JTextArea txtResultado;
     private JPanel PanelPrincipal;
-
+    private JButton btnArchivo;
+    private JTextArea txtEntrada;
+    private JTextArea txtSintactico;
+    private JButton btnLimpiar;
 
     public FrmPrincipal() {
 
         btnAnalizar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                File archivo = new File("archivo.lx");
-                PrintWriter escribir;
-                try {
-                    escribir = new PrintWriter(archivo);//Se copiara en un archivo para analizarlo
-                    escribir.print(txtEntrada.getText()); //Lo que escribamos en el Compilador
-                    escribir.close();;//Cerramos el archivo
-                } catch (FileNotFoundException ex) {
-                    ex.printStackTrace();
-                }
+                int cont = 1;
 
-                try {
-                    Reader lector = new BufferedReader(new FileReader("archivo.lx")); //Leeremos el Archivo
-                    Lexer lexer = new Lexer(lector); //Pasamos el archivo a lexer para analizarlo
-                    String resultado = "";//resultado de toda la cadena
-                    while (true){ //Analizar el archivo hasta encontrar el ultimo texto
-                        Tokens tokens = lexer.yylex();
-                        if (tokens == null){
-                            resultado += "Final Analisis Lexico";
-                            txtResultado.setText(resultado);//Pasamos al form la cadena del resultado
+                String expr = (String) txtEntrada.getText();
+                Lexer lexer = new Lexer(new StringReader(expr));
+                String resultado = "LINEA " + cont + "\t\t\tSIMBOLO\n";
+                while (true) {
+                    Tokens token = null;
+                    try {
+                        token = lexer.yylex();
 
-                            return; //para salir del while infinito
+                        if (token == null) {
+                            txtResultado.setText(resultado);
+                            return;
                         }
-                        switch (tokens){
-                            case ERROR:
-                                resultado+= lexer.yytext() +"\t\t\t|  ERROR TOKEN N/D\n";
+                        switch (token){
+                            case Line:
+                                cont++;
+                                resultado += "Linea " + cont + "\n";
                                 break;
                             case Entero:
                             case Decimal:
@@ -55,11 +57,10 @@ public class FrmPrincipal {
                             case Break:
                             case Case:
                             case Default:
-                            case Swhitch:
+                            case Switch:
                             case If:
                             case Imprimir:
                             case For:
-                            case Line:
                             case Negacion:
                             case Suma:
                             case Resta:
@@ -70,8 +71,9 @@ public class FrmPrincipal {
                             case MayorIgual:
                             case MenorIgual:
                             case Diferente:
-                            case Y:
-                            case O:
+                            case Igual:
+                            case And:
+                            case Or:
                             case Asignacion:
                             case PuntoComa:
                             case DosPuntos:
@@ -84,31 +86,75 @@ public class FrmPrincipal {
                             case CorchetesA:
                             case CorchetesC:
                             case Porcentaje:
+                            case Inicio:
                             case Identificador:
                             case Numero:
                             case NumeroDecimal:
-                            case Igual:
                             case Cadena:
-                                resultado+= lexer.yytext() +"\t\t\t| "+ tokens.name() +"\t|\t\t";
+                                resultado += token.name()+"\t\t" + lexer.lexeme + "\n";
+                                break;
+
+                            case ERROR:
+                                resultado+= token.name()+ " TOKEN N/D\n";
+                                break;
                             default:
-                                resultado += "Token: " +tokens+"\n";
+                                // resultado += "Token: " +token+"\n";
+                                //resultado += "< "+lexer.lexeme+" >\n";
+                                resultado += token.name()+"\t\t" + lexer.lexeme + "\n";
                                 break;
                         }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
+                }
+
+            }
+        });
+
+        //----------------------------------------------------------
+        btnArchivo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser();
+                chooser.showOpenDialog(null);
+                File archivo = new File(chooser.getSelectedFile().getAbsolutePath());//Contenido del Arvhivo
+
+                try {
+                    String ST = new String(Files.readAllBytes(archivo.toPath())); //Contiene todos los caracteres del archivo
+                    txtEntrada.setText(ST); //Agregamos el contenido al txtResultado
                 } catch (FileNotFoundException ex) {
-                    ex.printStackTrace();
+                    Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    Logger.getLogger(FrmPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        btnLimpiar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                txtResultado.setText(null);
+                txtSintactico.setText(null);
+            }
+        });
+        btnAnalizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String st = txtResultado.getText();
+
+                Sintax s = new Sintax(new codigo.LexerCup(new StringReader(st)));
+                try {
+                    s.parse();
+                    txtSintactico.setText("Analisis Realizado Con Exito!");
+                    txtSintactico.setForeground(new Color(25, 111, 61));
+
+                } catch (Exception Ex) {
+                    Symbol sym = s.getS();
+                    txtSintactico.setText("Error de Sintaxis Linea: " + (sym.right +1) +"Columna: "+(sym.left + 1)+", Texto \""+ sym.value + "\"");
+                    txtSintactico.setForeground(Color.PINK);
                 }
             }
         });
     }
-
-
-
-
-
-
 
     public static void main(String[] args) throws Exception {
 
@@ -119,46 +165,46 @@ public class FrmPrincipal {
         frame.setVisible(true);
 
         //Generar Clase Lexer
-        String rutaLexer = "I:/PROYECTOS JAVA/MiniCompiler/AnalizadorLexico/src/Codigo/Lexer.flex";
-        String rutaCup = "I:/PROYECTOS JAVA/MiniCompiler/AnalizadorLexico/src/Codigo/LexerCup.flex";
-        String rutac = "I:/PROYECTOS JAVA/MiniCompiler/AnalizadorLexico/src/Codigo/Sintax.cup";
-        String[] rutaSintax = {"-parser", "Sintax",rutac};
-
+        String rutaLexer = "I:/PROYECTOS JAVA/MiniCompiler/Analizador/src/Codigo/Lexer.flex"; //ruta1
+        String rutaCup = "I:/PROYECTOS JAVA/MiniCompiler/Analizador/src/Codigo/LexerCup.flex"; //ruta2
+        String rutac = "I:/PROYECTOS JAVA/MiniCompiler/Analizador/src/Codigo/Sintax.cup";
+        String[] rutaSintax = {"-parser", "Sintax",rutac}; //rutaS
         generarAnalisis(rutaLexer, rutaCup, rutaSintax);
     }
 
     public static  void generarAnalisis(String rutaLexer, String rutaCup, String[] rutaSintax) throws Exception { //metodo para crear analizador lexico - Clase Lexer
         File archivo;
         archivo = new File(rutaLexer);
-        JFlex.Main.generate(archivo);
+        JFlex.Main.generate(archivo);//Crea archivo Lexer
 
         archivo = new File(rutaCup);
-        JFlex.Main.generate(archivo);
+        JFlex.Main.generate(archivo);//Crea archivo LexerCup
 
-        java_cup.Main.main(rutaSintax);
+        java_cup.Main.main(rutaSintax); //Crea archivo SintaxCup
 
-        String rutaActualSym = "I:/PROYECTOS JAVA/MiniCompiler/AnalizadorLexico/sym.java";
-        String rutaDestinoSym = "I:/PROYECTOS JAVA/MiniCompiler/AnalizadorLexico/src/Codigo/sym.java";
-        String rutaActualSintax = "I:/PROYECTOS JAVA/MiniCompiler/AnalizadorLexico/Sintax.java";
-        String rutaDestinoSintax = "I:/PROYECTOS JAVA/MiniCompiler/AnalizadorLexico/src/Codigo/Sintax.java";
+        String rutaActualSym = "I:/PROYECTOS JAVA/MiniCompiler/Analizador/sym.java"; //Ruta Origen
+        String rutaDestinoSym = "I:/PROYECTOS JAVA/MiniCompiler/Analizador/src/Codigo/sym.java"; //Ruta Destino
 
-        //Si existe el archivo de simbolo borrarlo
-        Path pathSym = Paths.get(rutaDestinoSym);
-        if (Files.exists(pathSym)){
-            Files.delete(pathSym);
+                //Si existe el archivo de simbolo borrarlo
+        Path rutaSym = Paths.get(rutaDestinoSym); //RutaDestino
+        if (Files.exists(rutaSym)){
+            Files.delete(rutaSym);
         }
 
-        Files.move(Paths.get(rutaActualSym),
-                   Paths.get(rutaDestinoSym));
+        Files.move(Paths.get(rutaActualSym),//Ruta Origen
+                   Paths.get(rutaDestinoSym)); //Ruta Destino
+
+        String rutaActualSintax = "I:/PROYECTOS JAVA/MiniCompiler/Analizador/Sintax.java";
+        String rutaDestinoSintax = "I:/PROYECTOS JAVA/MiniCompiler/Analizador/src/Codigo/Sintax.java";
 
         //Si existe el archivo sintactico borrarlo
-        Path pathSintax = Paths.get(rutaDestinoSintax);
-        if (Files.exists(pathSintax)){
-            Files.delete(pathSintax);
+        Path rutaSin = Paths.get(rutaDestinoSintax); //Ruta Destino
+        if (Files.exists(rutaSin)){
+            Files.delete(rutaSin);
         }
 
-        Files.move(Paths.get(rutaActualSintax),
-                Paths.get(rutaDestinoSintax));
+        Files.move(Paths.get(rutaActualSintax), //Ruta Origen
+                Paths.get(rutaDestinoSintax)); //Ruta Destino
     }
 }
 

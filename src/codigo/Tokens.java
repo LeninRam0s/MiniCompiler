@@ -10,7 +10,7 @@ public enum Tokens { //CLASE DE ENUMERACION DE TOKENS
     Break,
     Case,
     Default,
-    Swhitch,
+    Switch,
     If,
     Imprimir,
     For,
@@ -25,8 +25,9 @@ public enum Tokens { //CLASE DE ENUMERACION DE TOKENS
     MayorIgual,
     MenorIgual,
     Diferente,
-    Y,
-    O,
+    Igual,
+    And,
+    Or,
     Asignacion,
     PuntoComa,
     DosPuntos,
@@ -43,7 +44,6 @@ public enum Tokens { //CLASE DE ENUMERACION DE TOKENS
     Identificador,
     Numero,
     NumeroDecimal,
-    Igual,
     Cadena,
     ERROR
 
